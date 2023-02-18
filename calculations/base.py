@@ -1,8 +1,7 @@
 import abc
 from typing import List
 
-from dish.base import BaseIngredient
-from dish.points import DishPoint
+from dish.base import BaseIngredient, DishPoint
 
 
 class BaseCalculator(abc.ABC):

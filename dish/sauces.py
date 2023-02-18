@@ -1,5 +1,4 @@
-from dish.base import Sauce
-from dish.points import IngredientPoint
+from dish.base import Sauce, IngredientPoint
 
 
 class BasicTomatoSauce(Sauce):

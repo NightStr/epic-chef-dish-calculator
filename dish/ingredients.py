@@ -1,12 +1,11 @@
 from typing import List
 
-from dish.base import Ingredient
-from dish.points import IngredientPoint, DishPoint
+from dish.base import Ingredient, IngredientPoint, DishPoint
 from dish.tags import Tag
 
 
 class Tomato(Ingredient):
-    tags = (Tag.land, Tag.plant)
+    tags: List[Tag] = [Tag.land, Tag.plant]
     points = IngredientPoint(
         vgr=6,
         sprt=2,
@@ -26,7 +25,7 @@ class Tomato(Ingredient):
 
 
 class Carrot(Ingredient):
-    tags = (Tag.land, Tag.plant)
+    tags: List[Tag] = [Tag.land, Tag.plant]
     points = IngredientPoint(
         vgr=2,
         sprt=5,
@@ -41,7 +40,7 @@ class Carrot(Ingredient):
 
 
 class Potato(Ingredient):
-    tags = (Tag.land, Tag.plant)
+    tags: List[Tag] = [Tag.land, Tag.plant]
     points = IngredientPoint(
         vgr=2,
         sprt=3,

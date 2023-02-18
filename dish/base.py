@@ -3,19 +3,45 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import List, Tuple
 
-from dish.points import IngredientPoint, DishPoint
+from pydantic import BaseModel
+
 from dish.tags import Tag
 
 
-@dataclass
-class BaseIngredient(abc.ABC):
-    points: IngredientPoint
+class BaseIngredient(BaseModel):
+    points: "IngredientPoint"
 
-    @abc.abstractmethod
-    def _apply(self, dish_points: DishPoint, ingredients: List["Ingredient"]) -> DishPoint: ...
+    def _apply(self, dish_points: "DishPoint", ingredients: List["Ingredient"]) -> "DishPoint":
+        return dish_points
 
-    def apply(self, dish_points: DishPoint, ingredients: List["Ingredient"]) -> DishPoint:
+    def apply(self, dish_points: "DishPoint", ingredients: List["Ingredient"]) -> "DishPoint":
         return self._apply(dish_points.copy(), ingredients).add_ingredient(self)
+
+
+class BasePoint(BaseModel):
+    vgr: int
+    sprt: int
+    soph: int
+
+
+class IngredientPoint(BasePoint):
+    ...
+
+
+class DishPoint(BasePoint):
+    def copy(self) -> "DishPoint":
+        return DishPoint(
+            vgr=self.vgr,
+            sprt=self.sprt,
+            soph=self.soph
+        )
+
+    def add_ingredient(self, ingredient: BaseIngredient) -> "DishPoint":
+        return DishPoint(
+            vgr=self.vgr + ingredient.points.vgr,
+            sprt=self.sprt + ingredient.points.sprt,
+            soph=self.soph + ingredient.points.soph
+        )
 
 
 class Sauce(BaseIngredient):
@@ -23,6 +49,5 @@ class Sauce(BaseIngredient):
         return dish_points
 
 
-@dataclass
 class Ingredient(BaseIngredient, ABC):
-    tags: Tuple[Tag, Tag]
+    tags: List[Tag]
