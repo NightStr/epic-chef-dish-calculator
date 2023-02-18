@@ -18,8 +18,9 @@ class BaseIngredient(abc.ABC):
         return self._apply(dish_points.copy(), ingredients).add_ingredient(self)
 
 
-class Sauce(BaseIngredient, ABC):
-    ...
+class Sauce(BaseIngredient):
+    def _apply(self, dish_points: DishPoint, ingredients: List["Ingredient"]) -> DishPoint:
+        return dish_points
 
 
 @dataclass
