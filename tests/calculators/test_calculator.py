@@ -24,3 +24,12 @@ class MyClassTest(unittest.TestCase):
             sprt=23,
             soph=192.6
         ))
+
+    def test_spiderflesh_legendarycrab_legendarycrab_with_spectral_chutney_sauce(self):
+        self.assertEqual(EpicChefCalculator().calculate(60, [
+            SpiderFlesh(), SpectralChutneySauce(), LegendaryCrab(), LegendaryCrab(),
+        ]), DishPoint(
+            vgr=67,
+            sprt=56,
+            soph=526.75
+        ))

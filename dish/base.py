@@ -27,7 +27,7 @@ class BaseIngredient(BaseModel):
     bonuses: List["BaseExtraBonus"]
 
     def __str__(self):
-        return f"{self.name}({self.name_ru})"
+        return f"{self.name} ({self.name_ru})"
 
     def apply(self, player_level: int, dish_points: "DishPoint", ingredients: List["Ingredient"]) -> "DishPoint":
         for bonus in self.bonuses:

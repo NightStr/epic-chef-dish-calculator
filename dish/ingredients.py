@@ -165,3 +165,91 @@ class SpecialDough(Ingredient):
             ))]
         )
     ]
+
+
+class SpiderFlesh(Ingredient):
+    name = "Spider Flesh"
+    name_ru = "Паучье мясо"
+    tags: List[Tag] = [Tag.land, Tag.magic]
+    points = IngredientPoint(
+        vgr=15,
+        sprt=23,
+        soph=12,
+    )
+    bonuses: List[BaseExtraBonus] = [
+        AllConditionsExtraBonus(
+            min_level=40,
+            conditions=[PreviousIngredientsHaveAllTags(tags=[Tag.animal, Tag.sea])],
+            mechanics=[
+                FlatBonusMechanic(bonuses=BasePoint(
+                    vgr=15,
+                    sprt=0,
+                    soph=0
+                )),
+                MultiplierBonusMechanic(bonuses=BasePoint(
+                    vgr=2,
+                    sprt=0,
+                    soph=0
+                ))
+            ]
+        ),
+        AllConditionsExtraBonus(
+            min_level=2,
+            conditions=[HaveNoPreviousIngredients()],
+            mechanics=[FlatBonusMechanic(bonuses=BasePoint(
+                vgr=12,
+                sprt=9,
+                soph=10
+            ))]
+        )
+    ]
+
+
+class LegendaryCrab(Ingredient):
+    name = "Legendary Crab"
+    name_ru = "Легендарный краб"
+    tags: List[Tag] = [Tag.sea, Tag.animal]
+    points = IngredientPoint(
+        vgr=20,
+        sprt=12,
+        soph=13,
+    )
+    bonuses: List[BaseExtraBonus] = [
+        AllConditionsExtraBonus(
+            min_level=47,
+            conditions=[HaveIngredientInIngredients(ingredient="Mugle Carp")],
+            mechanics=[FlatBonusMechanic(bonuses=BasePoint(
+                vgr=40,
+                sprt=0,
+                soph=0
+            ))]
+        ),
+        AllConditionsExtraBonus(
+            min_level=2,
+            conditions=[PreviousIngredientsHaveAllTags(tags=[Tag.land, Tag.magic])],
+            mechanics=[
+                FlatBonusMechanic(bonuses=BasePoint(
+                    vgr=0,
+                    sprt=0,
+                    soph=25
+                )),
+                MultiplierBonusMechanic(bonuses=BasePoint(
+                    vgr=0,
+                    sprt=0,
+                    soph=2.5
+                ))
+            ]
+        )
+    ]
+
+
+class MugleCarp(Ingredient):
+    name = "Mugle Carp"
+    name_ru = "Магл-карп"
+    tags: List[Tag] = [Tag.sea, Tag.animal]
+    points = IngredientPoint(
+        vgr=8,
+        sprt=12,
+        soph=20,
+    )
+    bonuses: List[BaseExtraBonus] = []
