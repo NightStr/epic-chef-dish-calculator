@@ -20,7 +20,7 @@ class HaveNoPreviousIngredients(BaseBonusCondition):
 
 
 class HaveIngredientInIngredients(BaseBonusCondition):
-    ingredient: Type[Ingredient]
+    ingredient: str
 
     def can_apply(self, ingredients: List[Ingredient]) -> bool:
-        return any(isinstance(i, self.ingredient) for i in ingredients)
+        return any(self.ingredient == i.name for i in ingredients)

@@ -56,7 +56,7 @@ class Potato(Ingredient):
     )
     bonuses: List[BaseExtraBonus] = [
         AllConditionsExtraBonus(
-            conditions=[HaveIngredientInIngredients(ingredient=Tomato)],
+            conditions=[HaveIngredientInIngredients(ingredient="Tomato")],
             mechanics=[FlatBonusMechanic(bonuses=BasePoint(
                 vgr=0,
                 sprt=0,
