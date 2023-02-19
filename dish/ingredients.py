@@ -1,6 +1,9 @@
 from typing import List
 
-from dish.base import Ingredient, IngredientPoint, DishPoint
+from dish.base import Ingredient, IngredientPoint, BasePoint, BaseBonusMechanic, BaseBonusCondition, BaseExtraBonus
+from dish.bonus_conditions import PreviousIngredientsHaveAllTags, HaveNoPreviousIngredients, HaveIngredientInIngredients
+from dish.bonus_mechanics import FlatBonusMechanic
+from dish.bonuses import AllConditionsExtraBonus
 from dish.tags import Tag
 
 
@@ -11,17 +14,12 @@ class Tomato(Ingredient):
         sprt=2,
         soph=2,
     )
-
-    def _apply(self, dish_points: DishPoint, ingredients: List[Ingredient]) -> DishPoint:
-        exists_tags = []
-
-        for i in ingredients:
-            exists_tags.extend(i.tags)
-
-        if Tag.plant in exists_tags and Tag.land in exists_tags:
-            dish_points.vgr = dish_points.vgr + 5
-
-        return dish_points
+    bonuses: List[BaseExtraBonus] = [
+        AllConditionsExtraBonus(
+            conditions=[PreviousIngredientsHaveAllTags(tags=[Tag.plant, Tag.land])],
+            mechanics=[FlatBonusMechanic(bonuses=BasePoint(vgr=5, sprt=0, soph=0))]
+        )
+    ]
 
 
 class Carrot(Ingredient):
@@ -31,12 +29,16 @@ class Carrot(Ingredient):
         sprt=5,
         soph=3,
     )
-
-    def _apply(self, dish_points: DishPoint, ingredients: List[Ingredient]) -> DishPoint:
-        if not ingredients:
-            dish_points.sprt = dish_points.sprt + 5
-
-        return dish_points
+    bonuses: List[BaseExtraBonus] = [
+        AllConditionsExtraBonus(
+            conditions=[HaveNoPreviousIngredients()],
+            mechanics=[FlatBonusMechanic(bonuses=BasePoint(
+                vgr=0,
+                sprt=5,
+                soph=0
+            ))]
+        )
+    ]
 
 
 class Potato(Ingredient):
@@ -46,9 +48,13 @@ class Potato(Ingredient):
         sprt=3,
         soph=5,
     )
-
-    def _apply(self, dish_points: DishPoint, ingredients: List[Ingredient]) -> DishPoint:
-        if Tomato in [i.__class__ for i in ingredients]:
-            dish_points.soph = dish_points.soph + 5
-
-        return dish_points
+    bonuses: List[BaseExtraBonus] = [
+        AllConditionsExtraBonus(
+            conditions=[HaveIngredientInIngredients(ingredient=Tomato)],
+            mechanics=[FlatBonusMechanic(bonuses=BasePoint(
+                vgr=0,
+                sprt=0,
+                soph=5
+            ))]
+        )
+    ]

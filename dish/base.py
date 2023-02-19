@@ -1,27 +1,53 @@
 import abc
 from abc import ABC
-from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List
 
 from pydantic import BaseModel
 
 from dish.tags import Tag
 
 
-class BaseIngredient(BaseModel):
-    points: "IngredientPoint"
 
-    def _apply(self, dish_points: "DishPoint", ingredients: List["Ingredient"]) -> "DishPoint":
+
+class BaseBonusCondition(BaseModel):
+    def can_apply(self, ingredients: List["Ingredient"]) -> bool:
+        return False
+
+
+class BaseBonusMechanic(BaseModel):
+    @abc.abstractmethod
+    def apply(self, dish_points: "DishPoint") -> "DishPoint":
         return dish_points
 
+
+class BaseIngredient(BaseModel):
+    points: "IngredientPoint"
+    bonuses: List["BaseExtraBonus"]
+
     def apply(self, dish_points: "DishPoint", ingredients: List["Ingredient"]) -> "DishPoint":
-        return self._apply(dish_points.copy(), ingredients).add_ingredient(self)
+        for bonus in self.bonuses:
+            dish_points = bonus.apply(dish_points, ingredients)
+        return dish_points + self.points
 
 
 class BasePoint(BaseModel):
     vgr: int
     sprt: int
     soph: int
+
+    def __add__(self, other):
+        return self.__class__(
+            vgr=self.vgr + other.vgr,
+            sprt=self.sprt + other.sprt,
+            soph=self.soph + other.soph,
+        )
+
+    def __mul__(self, other):
+        return self.__class__(
+            vgr=self.vgr * other.vgr,
+            sprt=self.sprt * other.sprt,
+            soph=self.soph * other.soph,
+        )
 
 
 class IngredientPoint(BasePoint):
@@ -45,9 +71,23 @@ class DishPoint(BasePoint):
 
 
 class Sauce(BaseIngredient):
-    def _apply(self, dish_points: DishPoint, ingredients: List["Ingredient"]) -> DishPoint:
-        return dish_points
+    ...
 
 
 class Ingredient(BaseIngredient, ABC):
     tags: List[Tag]
+
+
+class BaseExtraBonus(BaseModel):
+    conditions: List[BaseBonusCondition]
+    mechanics: List[BaseBonusMechanic]
+
+    def can_apply(self, ingredients: List[Ingredient]) -> bool:
+        return False
+
+    def apply(self, dish_points: DishPoint, ingredients: List[Ingredient]) -> DishPoint:
+        dish_points_c = dish_points.copy()
+        if self.can_apply(ingredients):
+            for m in self.mechanics:
+                dish_points_c = m.apply(dish_points_c)
+        return dish_points_c
