@@ -8,6 +8,8 @@ from dish.tags import Tag
 
 
 class Tomato(Ingredient):
+    name = "Tomato"
+    name_ru = "Помидор"
     tags: List[Tag] = [Tag.land, Tag.plant]
     points = IngredientPoint(
         vgr=6,
@@ -23,6 +25,8 @@ class Tomato(Ingredient):
 
 
 class Carrot(Ingredient):
+    name = "Carrot"
+    name_ru = "Морковь"
     tags: List[Tag] = [Tag.land, Tag.plant]
     points = IngredientPoint(
         vgr=2,
@@ -42,6 +46,8 @@ class Carrot(Ingredient):
 
 
 class Potato(Ingredient):
+    name = "Potato"
+    name_ru = "Картофель"
     tags: List[Tag] = [Tag.land, Tag.plant]
     points = IngredientPoint(
         vgr=2,

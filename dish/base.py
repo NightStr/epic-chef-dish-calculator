@@ -21,8 +21,13 @@ class BaseBonusMechanic(BaseModel):
 
 
 class BaseIngredient(BaseModel):
+    name: str
+    name_ru: str
     points: "IngredientPoint"
     bonuses: List["BaseExtraBonus"]
+
+    def __str__(self):
+        return f"{self.name}({self.name_ru})"
 
     def apply(self, dish_points: "DishPoint", ingredients: List["Ingredient"]) -> "DishPoint":
         for bonus in self.bonuses:
