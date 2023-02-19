@@ -1,9 +1,9 @@
 from typing import List
 
-from dish.base import Ingredient, IngredientPoint, BasePoint, BaseBonusMechanic, BaseBonusCondition, BaseExtraBonus
-from dish.bonus_conditions import PreviousIngredientsHaveAllTags, HaveNoPreviousIngredients, HaveIngredientInIngredients
-from dish.bonus_mechanics import FlatBonusMechanic, MultiplierBonusMechanic
-from dish.bonuses import AllConditionsExtraBonus
+from dish.base import Ingredient, IngredientPoint, BasePoint, BaseSynergyMechanic, BaseSynergyCondition, BaseSynergy
+from dish.bonus_conditions import PreviousIngredientsHaveAllTags, MustBeFirstIngredient, SpecificIngredientRequired
+from dish.bonus_mechanics import FlatSynergyMechanic, MultiplierSynergyMechanic
+from dish.bonuses import AllConditionsSynergy
 from dish.tags import Tag
 
 
@@ -16,11 +16,11 @@ class Tomato(Ingredient):
         sprt=2,
         soph=2,
     )
-    bonuses: List[BaseExtraBonus] = [
-        AllConditionsExtraBonus(
+    synergies: List[BaseSynergy] = [
+        AllConditionsSynergy(
             min_level=2,
             conditions=[PreviousIngredientsHaveAllTags(tags=[Tag.plant, Tag.land])],
-            mechanics=[FlatBonusMechanic(bonuses=BasePoint(vgr=5, sprt=0, soph=0))]
+            mechanics=[FlatSynergyMechanic(bonuses=BasePoint(vgr=5, sprt=0, soph=0))]
         )
     ]
 
@@ -34,11 +34,11 @@ class Carrot(Ingredient):
         sprt=5,
         soph=3,
     )
-    bonuses: List[BaseExtraBonus] = [
-        AllConditionsExtraBonus(
+    synergies: List[BaseSynergy] = [
+        AllConditionsSynergy(
             min_level=2,
-            conditions=[HaveNoPreviousIngredients()],
-            mechanics=[FlatBonusMechanic(bonuses=BasePoint(
+            conditions=[MustBeFirstIngredient()],
+            mechanics=[FlatSynergyMechanic(bonuses=BasePoint(
                 vgr=0,
                 sprt=5,
                 soph=0
@@ -56,11 +56,11 @@ class Potato(Ingredient):
         sprt=3,
         soph=5,
     )
-    bonuses: List[BaseExtraBonus] = [
-        AllConditionsExtraBonus(
+    synergies: List[BaseSynergy] = [
+        AllConditionsSynergy(
             min_level=2,
-            conditions=[HaveIngredientInIngredients(ingredient="Tomato")],
-            mechanics=[FlatBonusMechanic(bonuses=BasePoint(
+            conditions=[SpecificIngredientRequired(ingredient="Tomato")],
+            mechanics=[FlatSynergyMechanic(bonuses=BasePoint(
                 vgr=0,
                 sprt=0,
                 soph=5
@@ -78,11 +78,11 @@ class Rice(Ingredient):
         sprt=3,
         soph=6,
     )
-    bonuses: List[BaseExtraBonus] = [
-        AllConditionsExtraBonus(
+    synergies: List[BaseSynergy] = [
+        AllConditionsSynergy(
             min_level=2,
             conditions=[PreviousIngredientsHaveAllTags(tags=[Tag.plant, Tag.mixed])],
-            mechanics=[FlatBonusMechanic(bonuses=BasePoint(vgr=0, sprt=5, soph=0))]
+            mechanics=[FlatSynergyMechanic(bonuses=BasePoint(vgr=0, sprt=5, soph=0))]
         )
     ]
 
@@ -96,11 +96,11 @@ class Hypnofish(Ingredient):
         sprt=7,
         soph=17,
     )
-    bonuses: List[BaseExtraBonus] = [
-        AllConditionsExtraBonus(
+    synergies: List[BaseSynergy] = [
+        AllConditionsSynergy(
             min_level=19,
             conditions=[PreviousIngredientsHaveAllTags(tags=[Tag.plant, Tag.sea])],
-            mechanics=[FlatBonusMechanic(bonuses=BasePoint(vgr=30, sprt=0, soph=0))]
+            mechanics=[FlatSynergyMechanic(bonuses=BasePoint(vgr=30, sprt=0, soph=0))]
         )
     ]
 
@@ -114,20 +114,20 @@ class Ghostato(Ingredient):
         sprt=8,
         soph=12,
     )
-    bonuses: List[BaseExtraBonus] = [
-        AllConditionsExtraBonus(
+    synergies: List[BaseSynergy] = [
+        AllConditionsSynergy(
             min_level=2,
-            conditions=[HaveIngredientInIngredients(ingredient="Rice")],
-            mechanics=[FlatBonusMechanic(bonuses=BasePoint(
+            conditions=[SpecificIngredientRequired(ingredient="Rice")],
+            mechanics=[FlatSynergyMechanic(bonuses=BasePoint(
                 vgr=0,
                 sprt=0,
                 soph=15
             ))]
         ),
-        AllConditionsExtraBonus(
+        AllConditionsSynergy(
             min_level=10,
-            conditions=[HaveNoPreviousIngredients()],
-            mechanics=[FlatBonusMechanic(bonuses=BasePoint(
+            conditions=[MustBeFirstIngredient()],
+            mechanics=[FlatSynergyMechanic(bonuses=BasePoint(
                 vgr=0,
                 sprt=0,
                 soph=30
@@ -145,20 +145,20 @@ class SpecialDough(Ingredient):
         sprt=8,
         soph=3,
     )
-    bonuses: List[BaseExtraBonus] = [
-        AllConditionsExtraBonus(
+    synergies: List[BaseSynergy] = [
+        AllConditionsSynergy(
             min_level=16,
             conditions=[PreviousIngredientsHaveAllTags(tags=[Tag.magic, Tag.sea])],
-            mechanics=[MultiplierBonusMechanic(bonuses=BasePoint(
+            mechanics=[MultiplierSynergyMechanic(bonuses=BasePoint(
                 vgr=0,
                 sprt=0,
                 soph=2.4
             ))]
         ),
-        AllConditionsExtraBonus(
+        AllConditionsSynergy(
             min_level=2,
-            conditions=[HaveNoPreviousIngredients()],
-            mechanics=[FlatBonusMechanic(bonuses=BasePoint(
+            conditions=[MustBeFirstIngredient()],
+            mechanics=[FlatSynergyMechanic(bonuses=BasePoint(
                 vgr=7,
                 sprt=0,
                 soph=0
@@ -176,27 +176,27 @@ class SpiderFlesh(Ingredient):
         sprt=23,
         soph=12,
     )
-    bonuses: List[BaseExtraBonus] = [
-        AllConditionsExtraBonus(
+    synergies: List[BaseSynergy] = [
+        AllConditionsSynergy(
             min_level=40,
             conditions=[PreviousIngredientsHaveAllTags(tags=[Tag.animal, Tag.sea])],
             mechanics=[
-                FlatBonusMechanic(bonuses=BasePoint(
+                FlatSynergyMechanic(bonuses=BasePoint(
                     vgr=15,
                     sprt=0,
                     soph=0
                 )),
-                MultiplierBonusMechanic(bonuses=BasePoint(
+                MultiplierSynergyMechanic(bonuses=BasePoint(
                     vgr=2,
                     sprt=0,
                     soph=0
                 ))
             ]
         ),
-        AllConditionsExtraBonus(
+        AllConditionsSynergy(
             min_level=2,
-            conditions=[HaveNoPreviousIngredients()],
-            mechanics=[FlatBonusMechanic(bonuses=BasePoint(
+            conditions=[MustBeFirstIngredient()],
+            mechanics=[FlatSynergyMechanic(bonuses=BasePoint(
                 vgr=12,
                 sprt=9,
                 soph=10
@@ -214,26 +214,26 @@ class LegendaryCrab(Ingredient):
         sprt=12,
         soph=13,
     )
-    bonuses: List[BaseExtraBonus] = [
-        AllConditionsExtraBonus(
+    synergies: List[BaseSynergy] = [
+        AllConditionsSynergy(
             min_level=47,
-            conditions=[HaveIngredientInIngredients(ingredient="Mugle Carp")],
-            mechanics=[FlatBonusMechanic(bonuses=BasePoint(
+            conditions=[SpecificIngredientRequired(ingredient="Mugle Carp")],
+            mechanics=[FlatSynergyMechanic(bonuses=BasePoint(
                 vgr=40,
                 sprt=0,
                 soph=0
             ))]
         ),
-        AllConditionsExtraBonus(
+        AllConditionsSynergy(
             min_level=2,
             conditions=[PreviousIngredientsHaveAllTags(tags=[Tag.land, Tag.magic])],
             mechanics=[
-                FlatBonusMechanic(bonuses=BasePoint(
+                FlatSynergyMechanic(bonuses=BasePoint(
                     vgr=0,
                     sprt=0,
                     soph=25
                 )),
-                MultiplierBonusMechanic(bonuses=BasePoint(
+                MultiplierSynergyMechanic(bonuses=BasePoint(
                     vgr=0,
                     sprt=0,
                     soph=2.5
@@ -252,4 +252,4 @@ class MugleCarp(Ingredient):
         sprt=12,
         soph=20,
     )
-    bonuses: List[BaseExtraBonus] = []
+    synergies: List[BaseSynergy] = []

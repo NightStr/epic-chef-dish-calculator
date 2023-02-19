@@ -1,14 +1,14 @@
-from dish.base import BasePoint, DishPoint, BaseBonusMechanic
+from dish.base import BasePoint, DishPoint, BaseSynergyMechanic
 
 
-class FlatBonusMechanic(BaseBonusMechanic):
+class FlatSynergyMechanic(BaseSynergyMechanic):
     bonuses: BasePoint
 
     def apply(self, dish_points: DishPoint) -> DishPoint:
         return dish_points + self.bonuses
 
 
-class MultiplierBonusMechanic(BaseBonusMechanic):
+class MultiplierSynergyMechanic(BaseSynergyMechanic):
     bonuses: BasePoint
 
     def apply(self, dish_points: DishPoint) -> DishPoint:

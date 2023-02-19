@@ -9,12 +9,12 @@ from dish.tags import Tag
 
 
 
-class BaseBonusCondition(BaseModel):
+class BaseSynergyCondition(BaseModel):
     def can_apply(self, ingredients: List["Ingredient"]) -> bool:
         return False
 
 
-class BaseBonusMechanic(BaseModel):
+class BaseSynergyMechanic(BaseModel):
     @abc.abstractmethod
     def apply(self, dish_points: "DishPoint") -> "DishPoint":
         return dish_points
@@ -24,14 +24,14 @@ class BaseIngredient(BaseModel):
     name: str
     name_ru: str
     points: "IngredientPoint"
-    bonuses: List["BaseExtraBonus"]
+    synergies: List["BaseSynergy"]
 
     def __str__(self):
         return f"{self.name} ({self.name_ru})"
 
     def apply(self, player_level: int, dish_points: "DishPoint", ingredients: List["Ingredient"]) -> "DishPoint":
-        for bonus in self.bonuses:
-            dish_points = bonus.apply(player_level, dish_points, ingredients)
+        for synergy in self.synergies:
+            dish_points = synergy.apply(player_level, dish_points, ingredients)
         return dish_points + self.points
 
 
@@ -83,10 +83,10 @@ class Ingredient(BaseIngredient, ABC):
     tags: List[Tag]
 
 
-class BaseExtraBonus(BaseModel):
+class BaseSynergy(BaseModel):
     min_level: int
-    conditions: List[BaseBonusCondition]
-    mechanics: List[BaseBonusMechanic]
+    conditions: List[BaseSynergyCondition]
+    mechanics: List[BaseSynergyMechanic]
 
     def can_apply(self, player_levent: int, ingredients: List[Ingredient]) -> bool:
         return player_levent >= self.min_level
