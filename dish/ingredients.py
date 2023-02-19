@@ -18,6 +18,7 @@ class Tomato(Ingredient):
     )
     bonuses: List[BaseExtraBonus] = [
         AllConditionsExtraBonus(
+            min_level=2,
             conditions=[PreviousIngredientsHaveAllTags(tags=[Tag.plant, Tag.land])],
             mechanics=[FlatBonusMechanic(bonuses=BasePoint(vgr=5, sprt=0, soph=0))]
         )
@@ -35,6 +36,7 @@ class Carrot(Ingredient):
     )
     bonuses: List[BaseExtraBonus] = [
         AllConditionsExtraBonus(
+            min_level=2,
             conditions=[HaveNoPreviousIngredients()],
             mechanics=[FlatBonusMechanic(bonuses=BasePoint(
                 vgr=0,
@@ -56,6 +58,7 @@ class Potato(Ingredient):
     )
     bonuses: List[BaseExtraBonus] = [
         AllConditionsExtraBonus(
+            min_level=2,
             conditions=[HaveIngredientInIngredients(ingredient="Tomato")],
             mechanics=[FlatBonusMechanic(bonuses=BasePoint(
                 vgr=0,

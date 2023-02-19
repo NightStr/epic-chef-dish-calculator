@@ -29,9 +29,9 @@ class BaseIngredient(BaseModel):
     def __str__(self):
         return f"{self.name}({self.name_ru})"
 
-    def apply(self, dish_points: "DishPoint", ingredients: List["Ingredient"]) -> "DishPoint":
+    def apply(self, player_level: int, dish_points: "DishPoint", ingredients: List["Ingredient"]) -> "DishPoint":
         for bonus in self.bonuses:
-            dish_points = bonus.apply(dish_points, ingredients)
+            dish_points = bonus.apply(player_level, dish_points, ingredients)
         return dish_points + self.points
 
 
@@ -84,15 +84,16 @@ class Ingredient(BaseIngredient, ABC):
 
 
 class BaseExtraBonus(BaseModel):
+    min_level: int
     conditions: List[BaseBonusCondition]
     mechanics: List[BaseBonusMechanic]
 
-    def can_apply(self, ingredients: List[Ingredient]) -> bool:
-        return False
+    def can_apply(self, player_levent: int, ingredients: List[Ingredient]) -> bool:
+        return player_levent >= self.min_level
 
-    def apply(self, dish_points: DishPoint, ingredients: List[Ingredient]) -> DishPoint:
+    def apply(self, player_levent: int, dish_points: DishPoint, ingredients: List[Ingredient]) -> DishPoint:
         dish_points_c = dish_points.copy()
-        if self.can_apply(ingredients):
+        if self.can_apply(player_levent, ingredients):
             for m in self.mechanics:
                 dish_points_c = m.apply(dish_points_c)
         return dish_points_c

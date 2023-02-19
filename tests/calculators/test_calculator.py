@@ -8,7 +8,7 @@ from dish.sauces import BasicTomatoSauce
 
 class MyClassTest(unittest.TestCase):
     def test_carrot_tomato_potato_with_basic_tomato_sauce(self):
-        self.assertEqual(EpicChefCalculator().calculate([
+        self.assertEqual(EpicChefCalculator().calculate(99, [
             Carrot(), Tomato(), Potato(), BasicTomatoSauce()
         ]), DishPoint(
             vgr=25,
