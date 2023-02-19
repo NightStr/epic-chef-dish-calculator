@@ -2,8 +2,8 @@ import unittest
 
 from calculations.calculator import EpicChefCalculator
 from dish.base import DishPoint
-from dish.ingredients import Carrot, Tomato, Potato
-from dish.sauces import BasicTomatoSauce
+from dish.ingredients import *
+from dish.sauces import *
 
 
 class MyClassTest(unittest.TestCase):
@@ -14,4 +14,13 @@ class MyClassTest(unittest.TestCase):
             vgr=25,
             sprt=15,
             soph=15
+        ))
+
+    def test_ghostato_hypnofish_specialdough_with_spectral_chutney_sauce(self):
+        self.assertEqual(EpicChefCalculator().calculate(30, [
+            Ghostato(), Hypnofish(), SpectralChutneySauce(), SpecialDough(),
+        ]), DishPoint(
+            vgr=15,
+            sprt=23,
+            soph=192.6
         ))

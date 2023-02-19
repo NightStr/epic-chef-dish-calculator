@@ -36,9 +36,9 @@ class BaseIngredient(BaseModel):
 
 
 class BasePoint(BaseModel):
-    vgr: int
-    sprt: int
-    soph: int
+    vgr: float
+    sprt: float
+    soph: float
 
     def __add__(self, other):
         return self.__class__(
