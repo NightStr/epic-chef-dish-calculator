@@ -17,11 +17,11 @@ class CalculationResult(BaseModel):
 
 def calculate_points(player_level: int, ingredients: List[Ingredient], sauces: List[Sauce]) -> List[CalculationResult]:
     calculations_result = []
-    for ingredients_combination in itertools.combinations(ingredients, 3):
+    for ingredients_combination in itertools.product(ingredients, repeat=3):
         for sauce in sauces:
             list_ingredients = list(ingredients_combination)
             list_ingredients.append(sauce)
-            for combination in itertools.combinations(list_ingredients, 4):
+            for combination in set(itertools.permutations(list_ingredients, 4)):
                 print(f"Вычисление для {combination}.")
                 r = EpicChefCalculator().calculate(player_level, list(combination))
                 print(f"Результат для {combination}: {r}")

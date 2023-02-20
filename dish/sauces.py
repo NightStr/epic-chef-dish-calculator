@@ -33,14 +33,14 @@ class SpectralChutneySauce(Sauce):
 
 class MarconnaiseSauce(Sauce):
     name = "Marconnaise Sauce"
-    name_ru = "Спектральный соус чатни"
+    name_ru = "Соус «Марконнез»"
     points = IngredientPoint(vgr=20, sprt=0, soph=0)
     synergies: List[BaseSynergy] = []
 
 
 class SpecialCreamSauce(Sauce):
     name = "Special Cream Sauce"
-    name_ru = "Соус «Марконнез»"
+    name_ru = "Особый сливочный соус"
     points = IngredientPoint(vgr=0, sprt=20, soph=0)
     synergies: List[BaseSynergy] = []
 

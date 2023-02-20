@@ -26,6 +26,9 @@ class BaseIngredient(BaseModel):
     points: "IngredientPoint"
     synergies: List["BaseSynergy"]
 
+    def __hash__(self):
+        return self.__class__.__name__.__hash__()
+
     def __str__(self):
         return f"{self.name} ({self.name_ru})"
 
