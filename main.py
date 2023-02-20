@@ -23,7 +23,6 @@ def calculate_points(player_level: int, ingredients: List[Ingredient], sauces: L
             list_ingredients = list(ingredients_combination)
             list_ingredients.append(sauce)
             for combination in set(itertools.permutations(list_ingredients, 4)):
-                print(f"{c} из 36925056")
                 # print(f"Вычисление для {combination}.")
                 r = EpicChefCalculator().calculate(player_level, list(combination))
                 # print(f"Результат для {combination}: {r}")
@@ -33,6 +32,7 @@ def calculate_points(player_level: int, ingredients: List[Ingredient], sauces: L
                     points_sum=r.vgr+r.sprt+r.soph
                 ))
                 c += 1
+        print(f"{c} из 36925056")
     return calculations_result
 
 
