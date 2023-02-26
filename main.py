@@ -4,6 +4,7 @@ from time import sleep
 from typing import Generator
 
 from pydantic import BaseModel
+from tqdm import tqdm
 
 from calculations.calculator import EpicChefCalculator
 from dish.base import BaseIngredient
@@ -18,20 +19,22 @@ class CalculationResult(BaseModel):
 
 
 def calculate_points(player_level: int, ingredients: List[Ingredient], sauces: List[Sauce]) -> Generator[CalculationResult, None, None]:
-    c = 0
-    for ingredients_combination in itertools.product(ingredients, repeat=3):
+    for ingredients_combination in tqdm(itertools.product(ingredients, repeat=3), total=175616):
         for sauce in sauces:
             list_ingredients = list(ingredients_combination)
-            list_ingredients.append(sauce)
-            for combination in set(itertools.permutations(list_ingredients, 4)):
+            combinations = []
+            for i in range(len(list_ingredients)+1):
+                combination = list_ingredients.copy()
+                combination.append(sauce)
+                combination[i], combination[-1] = combination[-1], combination[i]
+                combinations.append(combination)
+            for combination in combinations:
                 r = EpicChefCalculator().calculate(player_level, list(combination))
                 yield CalculationResult(
                     ingredients=list(combination),
                     points=r,
                     points_sum=r.vgr+r.sprt+r.soph
                 )
-                c += 1
-        print(f"{c} из 36925056")
 
 
 if __name__ == "__main__":
