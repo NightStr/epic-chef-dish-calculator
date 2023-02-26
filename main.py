@@ -1,15 +1,24 @@
 import itertools
-import sqlite3
-from time import sleep
+import os
 from typing import Generator
 
 from pydantic import BaseModel
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
 from tqdm import tqdm
 
 from calculations.calculator import EpicChefCalculator
 from dish.base import BaseIngredient
 from dish.ingredients import *
 from dish.sauces import *
+import models
+
+
+CACHE_CHUNK_SIZE = 500_000
+
+engine = create_engine('sqlite:///epic-chef.db')
+Session = sessionmaker(bind=engine)
+session = Session()
 
 
 class CalculationResult(BaseModel):
@@ -19,7 +28,7 @@ class CalculationResult(BaseModel):
 
 
 def calculate_points(player_level: int, ingredients: List[Ingredient], sauces: List[Sauce]) -> Generator[CalculationResult, None, None]:
-    for ingredients_combination in tqdm(itertools.product(ingredients, repeat=3), total=175616):
+    for ingredients_combination in tqdm(itertools.product(ingredients, repeat=3), desc="Calculation dishes", total=175616):
         for sauce in sauces:
             list_ingredients = list(ingredients_combination)
             combinations = []
@@ -40,51 +49,86 @@ def calculate_points(player_level: int, ingredients: List[Ingredient], sauces: L
 if __name__ == "__main__":
     all_ingredients = [i() for i in Ingredient.__subclasses__()]
     all_sauces = [s() for s in Sauce.__subclasses__()]
-    player_level = int(input("Уровень игрока: "))
+    cache = []
+
+    try:
+        os.remove('epic-chef.db')
+    except FileNotFoundError:
+        pass
 
     # Подключаемся к базе данных или создаем ее, если она не существует
-    conn = sqlite3.connect('epic-chef.db')
+    models.Base.metadata.create_all(engine)
+    session.commit()
 
-    # Создаем курсор для выполнения запросов к базе данных
-    cursor = conn.cursor()
-
-    # Создаем таблицу
-    cursor.execute('''DROP TABLE IF EXISTS dishes''')
-    cursor.execute('''CREATE TABLE dishes
-                      (ingredient_1 TEXT, ingredient_2 TEXT, ingredient_3 TEXT, ingredient_4 TEXT,
-                      vgr REAL, sprt REAL, soph REAL, required_level int, sum_points REAL)''')
+    print("Ok let's go. In and out. 20 minutes adventure.")
+    for ingredient in itertools.chain(all_ingredients, all_sauces):
+        tags = []
+        for tag in getattr(ingredient, "tags", []):
+            tag_model = session.query(models.Tag).filter_by(name=tag.name).first()
+            if not tag_model:
+                tag_model = models.Tag(name=tag.name)
+                session.add(tag_model)
+                session.flush()
+            tags.append(tag_model)
+        session.flush()
+        ingredient = models.Ingredient(
+            name=ingredient.name,
+            name_ru=ingredient.name_ru,
+            vgr=ingredient.points.vgr,
+            sprt=ingredient.points.sprt,
+            soph=ingredient.points.soph,
+        )
+        session.add(ingredient)
+        for tag in tags:
+            session.add(models.IngredientTag(
+                ingredient_id=ingredient.name,
+                tag_id=tag.id
+            ))
     c = 0
-    for r in calculate_points(player_level, all_ingredients, all_sauces):
+    for r in calculate_points(99, all_ingredients, all_sauces):
         levels = []
         for i in r.ingredients:
             for s in i.synergies:
                 levels.append(s.min_level)
         min_level_required = max(levels) if levels else 0
-        cursor.execute(
-            f"INSERT INTO dishes VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                str(r.ingredients[0]), str(r.ingredients[1]), str(r.ingredients[2]), str(r.ingredients[3]),
-                r.points.vgr, r.points.sprt, r.points.soph, min_level_required, r.points_sum
-            )
+        dish = models.Dish(
+            vgr=r.points.vgr,
+            sprt=r.points.sprt,
+            soph=r.points.soph,
+            required_level=min_level_required,
+            sum_points=r.points_sum
         )
+        session.add(dish)
+        cache.append({
+            "dish": dish,
+            "ingredients": {index: ing for index, ing in enumerate(r.ingredients)}
+        })
         c += 1
-
-        if c == 50_000:
+        if c == CACHE_CHUNK_SIZE:
             c = 0
-            for i in range(10):
+            print("Flush dishes.")
+            session.flush()
+            print("Ok it wasn't too hard.")
+            for v in tqdm(cache, desc="dumping cache into db", total=CACHE_CHUNK_SIZE):
                 try:
-                    conn.commit()
-                except Exception as e:
-                    print(f"Failed to write into db due error {e}")
-                    sleep(2*i)
-                else:
-                    break
+                    for index, ing in v["ingredients"].items():
+                        session.add(models.DishIngredient(
+                            dish_id=v["dish"].id,
+                            ingredient_id=ing.name,
+                            ord=index
+                        ))
+                except TypeError:
+                    raise
+            cache = []
+            print("Flush DishIngredient")
+            session.flush()
+            print("Ok, ok, let's continue. Fuuuu, i so tired, can i just die?")
 
-    cursor.execute("CREATE INDEX sum_points_index ON dishes('sum_points')")
-    cursor.execute("CREATE INDEX required_level_index ON dishes('required_level')")
-    cursor.execute("CREATE INDEX ingr1_index ON dishes('ingredient_1')")
-    cursor.execute("CREATE INDEX ingr2_index ON dishes('ingredient_2')")
-    cursor.execute("CREATE INDEX ingr3_index ON dishes('ingredient_3')")
-    cursor.execute("CREATE INDEX ingr4_index ON dishes('ingredient_4')")
-    conn.commit()
-    conn.close()
+print("Let's make some indexes. We need it i swear.")
+session.execute(text("CREATE INDEX sum_points_index ON dishes('sum_points')"))
+session.execute(text("CREATE INDEX required_level_index ON dishes('required_level')"))
+print("We are almost finished. Almost.")
+
+print("The last commit is started. Hope i can do this.")
+session.commit()
+print("Phew it's all over. May i take a breather now?")
