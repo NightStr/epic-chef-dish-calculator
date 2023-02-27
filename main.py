@@ -27,17 +27,24 @@ class CalculationResult(BaseModel):
     points_sum: float
 
 
+def get_combinations_with_sauce(list_ingredients, sauce) -> List[List[Ingredient]]:
+    if isinstance(sauce, WithoutSauce):
+        list_ingredients.append(sauce)
+        return [list_ingredients]
+
+    combinations = []
+    for i in range(len(list_ingredients) + 1):
+        combination = list_ingredients.copy()
+        combination.append(sauce)
+        combination[i], combination[-1] = combination[-1], combination[i]
+        combinations.append(combination)
+    return combinations
+
+
 def calculate_points(player_level: int, ingredients: List[Ingredient], sauces: List[Sauce]) -> Generator[CalculationResult, None, None]:
     for ingredients_combination in tqdm(itertools.product(ingredients, repeat=3), desc="Calculation dishes", total=175616):
         for sauce in sauces:
-            list_ingredients = list(ingredients_combination)
-            combinations = []
-            for i in range(len(list_ingredients)+1):
-                combination = list_ingredients.copy()
-                combination.append(sauce)
-                combination[i], combination[-1] = combination[-1], combination[i]
-                combinations.append(combination)
-            for combination in combinations:
+            for combination in get_combinations_with_sauce(list(ingredients_combination), sauce):
                 r = EpicChefCalculator().calculate(player_level, list(combination))
                 yield CalculationResult(
                     ingredients=list(combination),
@@ -61,72 +68,52 @@ if __name__ == "__main__":
     session.commit()
 
     print("Ok let's go. In and out. 20 minutes adventure.")
-    for ingredient in itertools.chain(all_ingredients, all_sauces):
-        tags = []
-        for tag in getattr(ingredient, "tags", []):
-            tag_model = session.query(models.Tag).filter_by(name=tag.name).first()
-            if not tag_model:
-                tag_model = models.Tag(name=tag.name)
-                session.add(tag_model)
-                session.flush()
-            tags.append(tag_model)
-        session.flush()
-        ingredient = models.Ingredient(
-            name=ingredient.name,
-            name_ru=ingredient.name_ru,
-            vgr=ingredient.points.vgr,
-            sprt=ingredient.points.sprt,
-            soph=ingredient.points.soph,
-        )
-        session.add(ingredient)
-        for tag in tags:
-            session.add(models.IngredientTag(
-                ingredient_id=ingredient.name,
-                tag_id=tag.id
-            ))
     c = 0
     for r in calculate_points(99, all_ingredients, all_sauces):
         levels = []
+        tags = set()
         for i in r.ingredients:
             for s in i.synergies:
                 levels.append(s.min_level)
+            for t in getattr(i, "tags", []):
+                tags.add(t.name)
         min_level_required = max(levels) if levels else 0
-        dish = models.Dish(
+        session.add(models.Dish(
             vgr=r.points.vgr,
             sprt=r.points.sprt,
             soph=r.points.soph,
             required_level=min_level_required,
-            sum_points=r.points_sum
-        )
-        session.add(dish)
-        cache.append({
-            "dish": dish,
-            "ingredients": {index: ing for index, ing in enumerate(r.ingredients)}
-        })
+            sum_points=r.points_sum,
+            ingredient_1_name=r.ingredients[0].name,
+            ingredient_1_name_ru=r.ingredients[0].__str__(),
+            ingredient_2_name=r.ingredients[1].name,
+            ingredient_2_name_ru=r.ingredients[1].__str__(),
+            ingredient_3_name=r.ingredients[2].name,
+            ingredient_3_name_ru=r.ingredients[2].__str__(),
+            ingredient_4_name=r.ingredients[3].name,
+            ingredient_4_name_ru=r.ingredients[3].__str__(),
+            tags=", ".join(sorted(tags))
+        ))
         c += 1
         if c == CACHE_CHUNK_SIZE:
             c = 0
-            print("Flush dishes.")
+            print("Flush session.")
             session.flush()
             print("Ok it wasn't too hard.")
-            for v in tqdm(cache, desc="dumping cache into db", total=CACHE_CHUNK_SIZE):
-                try:
-                    for index, ing in v["ingredients"].items():
-                        session.add(models.DishIngredient(
-                            dish_id=v["dish"].id,
-                            ingredient_id=ing.name,
-                            ord=index
-                        ))
-                except TypeError:
-                    raise
-            cache = []
-            print("Flush DishIngredient")
-            session.flush()
-            print("Ok, ok, let's continue. Fuuuu, i so tired, can i just die?")
+
 
 print("Let's make some indexes. We need it i swear.")
 session.execute(text("CREATE INDEX sum_points_index ON dishes('sum_points')"))
 session.execute(text("CREATE INDEX required_level_index ON dishes('required_level')"))
+session.execute(text("CREATE INDEX ingr1_name_index ON dishes('ingredient_1_name')"))
+session.execute(text("CREATE INDEX ingr2_name_index ON dishes('ingredient_2_name')"))
+session.execute(text("CREATE INDEX ingr3_name_index ON dishes('ingredient_3_name')"))
+session.execute(text("CREATE INDEX ingr4_name_index ON dishes('ingredient_4_name')"))
+session.execute(text("CREATE INDEX ingr1_name_ru_index ON dishes('ingredient_1_name_ru')"))
+session.execute(text("CREATE INDEX ingr2_name_ru_index ON dishes('ingredient_2_name_ru')"))
+session.execute(text("CREATE INDEX ingr3_name_ru_index ON dishes('ingredient_3_name_ru')"))
+session.execute(text("CREATE INDEX ingr4_name_ru_index ON dishes('ingredient_4_name_ru')"))
+
 print("We are almost finished. Almost.")
 
 print("The last commit is started. Hope i can do this.")

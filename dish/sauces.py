@@ -64,3 +64,10 @@ class DarkSeafoodSauce(Sauce):
     name_ru = "Тёмный соус из морепродуктов"
     points = IngredientPoint(vgr=0, sprt=0, soph=50)
     synergies: List[BaseSynergy] = []
+
+
+class WithoutSauce(Sauce):
+    name = "Without sauce"
+    name_ru = "Без соуса"
+    points = IngredientPoint(vgr=0, sprt=0, soph=0)
+    synergies: List[BaseSynergy] = []

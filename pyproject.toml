@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "epic-chef-dish-calculator"
+version = "0.1.0"
+description = ""
+authors = ["Night Strix <nightstrx@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+SQLAlchemy = "^2.0.4"
+tqdm = "^4.64.1"
+pydantic = "^1.10.5"
+Cython = "^0.29.33"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
